@@ -1,0 +1,32 @@
+name: Download File
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "File URL"
+        required: true
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: create folder
+        run: mkdir -p downloads
+
+      - name: download file
+        run: |
+          URL="${{ github.event.inputs.url }}"
+          FILE=$(basename "$URL")
+          curl -L "$URL" -o downloads/$FILE
+
+      - name: commit file
+        run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add downloads/
+          git commit -m "add downloaded file"
+          git push
